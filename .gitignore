@@ -1,0 +1,15 @@
+*.o
+*.a
+*.d
+*.bak
+*.pb.cc
+*.pb.h
+obj/
+bin/
+libs/
+GPATH
+GRTAGS
+GTAGS
+
+primary/
+third/
