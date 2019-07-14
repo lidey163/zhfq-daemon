@@ -6,10 +6,10 @@
 *.pb.h
 obj/
 bin/
-libs/
 GPATH
 GRTAGS
 GTAGS
 
-primary/
-third/
+libs
+primary
+third
