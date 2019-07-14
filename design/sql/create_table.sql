@@ -9,6 +9,7 @@ CREATE TABLE t_user(
 	F_mobile VARCHAR(11) DEFAULT '0' COMMENT '手机号',
 	F_email VARCHAR(32) DEFAULT '@' COMMENT '电子邮箱',
 	F_name VARCHAR(16) DEFAULT '0' COMMENT '登陆名',
+	F_passwd VARCHAR(16) DEFAULT '0' COMMENT '登陆密码',
 	F_person_id VARCHAR(18) DEFAULT '0' COMMENT '人员ID',
 	F_head_url VARCHAR(128) DEFAULT '0' COMMENT '头像地址',
 	F_follow VARCHAR(1024) DEFAULT '[]' COMMENT '关注对象列表',
@@ -19,6 +20,18 @@ CREATE TABLE t_user(
 	KEY idx_create_time(F_create_time)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '用户表';
 -- F_follow 用 json 数组表示，关注？意义暂不明显
+
+-- 当前会话管理表
+CREATE TABLE t_session(
+	F_user_id BIGINT UNSIGNED DEFAULT 0 COMMENT '用户id',
+	F_token VARCHAR(32) DEFAULT '0' COMMENT 'token 口令',
+	F_login_count INT UNSIGNED DEFAULT 0 COMMENT '登陆次数',
+	F_last_login DATETIME DEFAULT NULL COMMENT '上次登陆时间',
+	F_last_logout DATETIME DEFAULT NULL COMMENT '上次登出时间',
+	PRIMARY KEY(F_user_id),
+	KEY idx_token(F_token)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT '登陆会话记录表';
+-- 可将 token 入在 redis 等内存数据库加速优化
 
 -- 自然人基本信息表，直接用身份证主键
 CREATE TABLE t_person(

@@ -1,12 +1,15 @@
 #ifndef GATEWAY_AP_H
 #define GATEWAY_AP_H
 
+#include <map>
+
 #include "commonutil/Properties.h"
 #include "commonutil/Timer.h"
 #include "commonutil/api_logger.h"
 #include "commonutil/api_mysql.h"
 #include "fastcgi/fastcgi_server.hpp"
-#include "map"
+
+#include "servto/CServiceMgr.hpp"
 
 
 struct ApplicationGlobalData
@@ -18,6 +21,8 @@ struct ApplicationGlobalData
 
 	mysql::ConnectionPool *g_pool;
 	PoolDeleter<mysql::Connection> g_conn_delter;
+
+	servto::CServiceMgr serviceMgr;
 
 };
 

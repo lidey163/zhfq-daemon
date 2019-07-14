@@ -4,6 +4,8 @@
 
 #include "App.h"
 #include "CRequestHandler.h"
+#include "errorcode.hpp"
+
 ApplicationGlobalData g_App;
 
 static void InterruptedCallback(int signal)
@@ -11,10 +13,10 @@ static void InterruptedCallback(int signal)
     g_App.ptrServer->stop_work();
 }
 
-static int init()
+static EINT Init()
 {
-
-    return 0;
+	g_App.serviceMgr.Init();
+    return OK;
 }
 
 int main(int argc, char* argv[])
@@ -44,7 +46,7 @@ int main(int argc, char* argv[])
     g_App.g_pool->init();
     g_App.g_conn_delter.setPool(g_App.g_pool);
 
-    init();
+    Init();
     
     g_App.ptrTimer = new commonutil::Timer();
     g_App.ptrSelectorThread = new commonnet::SelectorThread(g_App.ptrTimer);
@@ -52,7 +54,7 @@ int main(int argc, char* argv[])
     CRequestHandler requestHandler;
     g_App.ptrServer = new t_fastcgi_server(ptrProperties->getProperty("Local.AllIP"),
                                                        ptrProperties->getPropertyAsInt("Gateway.Port"),
-                                                       10,
+                                                       8,
                                                        g_App.ptrSelectorThread,
                                                        &requestHandler);
     g_App.ptrServer->start_work();
@@ -60,5 +62,8 @@ int main(int argc, char* argv[])
     g_App.ptrSelectorThread->destroy();
     g_App.ptrTimer->destroy();
     g_App.ptrSelectorThread->joinWithThread();
+
+	delete g_App.ptrServer;
+	delete g_App.g_pool;
 }
 

@@ -36,9 +36,9 @@ C_INC    = $(INC_DIR:%=-I%)
 C_LIB    = $(LIB_DIR:%=-L%) $(LIB_DEPENDS:lib%=-l%) $(SYS_LIB:lib%=-l%)
 
 SRC_DIR += .
-C_SRC   = $(wildcard $(SRC_DIR:%=%/*.c))
-CXX_SRC = $(wildcard $(SRC_DIR:%=%/*.cpp))
-CCC_SRC = $(wildcard $(SRC_DIR:%=%/*.cc))
+C_SRC   += $(wildcard $(SRC_DIR:%=%/*.c))
+CXX_SRC += $(wildcard $(SRC_DIR:%=%/*.cpp))
+CCC_SRC += $(wildcard $(SRC_DIR:%=%/*.cc))
 C_OBJ   = $(C_SRC:%.c=$(OBJ_DIR)%.o)
 CCC_OBJ = $(CCC_SRC:%.cc=$(OBJ_DIR)%.o)
 CXX_OBJ = $(CXX_SRC:%.cpp=$(OBJ_DIR)%.o)
