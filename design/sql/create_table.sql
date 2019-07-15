@@ -1,4 +1,4 @@
--- mysql -h47.110.237.215 -uzhfquser -p'#0xFF00FF' db_zhfq
+-- mysql -h47.110.237.215 -uzhfquser -p'#0xFF00FF' --default-character-set=utf8 db_zhfq
 
 CREATE DATABASE IF NOT EXISTS db_zhfq DEFAULT CHARSET=utf8;
 use db_zhfq;
