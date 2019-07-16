@@ -4,7 +4,8 @@
 
 #include "App.h"
 #include "CRequestHandler.h"
-#include "errorcode.hpp"
+#include "errorutil.hpp"
+#include "script.hpp"
 
 ApplicationGlobalData g_App;
 
@@ -16,6 +17,8 @@ static void InterruptedCallback(int signal)
 static EINT Init()
 {
 	g_App.serviceMgr.Init();
+	std::string strScriptDir = g_App.ptrProperties->getProperty("Script.BaseDir");
+	script::Init(strScriptDir);
     return OK;
 }
 
@@ -28,6 +31,7 @@ int main(int argc, char* argv[])
     
     commonutil::PropertiesPtr ptrProperties = new commonutil::Properties();
     ptrProperties->load(commonutil::Properties::getPropertyPath());
+	g_App.ptrProperties = ptrProperties;
     
 	log_trace("before init_log");
     init_log(ptrProperties->getProperty("LogService.IP"), ptrProperties->getPropertyAsInt("LogService.Port"));

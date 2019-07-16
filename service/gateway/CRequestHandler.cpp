@@ -1,7 +1,8 @@
 #include "CRequestHandler.h"
 #include "App.h"
-#include "commonutil/GlobalUtil.h"
 #include <errno.h>
+#include "script.hpp"
+#include "commonutil/GlobalUtil.h"
 
 void CRequestHandler::HandleRequest(const commonnet::TransceiverPtr& ptrTransceiver, const t_fastcgi_request_ref &req)
 {
@@ -25,7 +26,7 @@ EINT CRequestHandler::HandleFastcgi(const t_fastcgi_request_ref &req, const t_fa
 	json jReply;
 
     do {
-        std::string reqdata = req->data();
+		std::string reqdata = req->data();
 		log_trace("req: %s", reqdata.c_str());
 		if (reqdata.empty())
 		{
@@ -65,15 +66,15 @@ EINT CRequestHandler::HandleFastcgi(const t_fastcgi_request_ref &req, const t_fa
 		session["client_ip"] = clientIp;
 
 		error = HandleAction(jRequest, jReply);
+
     } while (0);
 
+	jReply["error"] = error;
 	if (error != OK)
 	{
-		jReply["error"] = error;
 		if (jReply.value("errstr", "").empty())
 		{
-			// todo: 获取错误消息配置
-			jReply["errstr"] = "系统错误";
+			jReply["errstr"] = errors::GetErrorMsg(error);
 		}
 	}
 	else
@@ -103,8 +104,6 @@ EINT CRequestHandler::HandleAction(const json& jReq, json& jRet)
 		return ERR_ARGUMENT_EMPTY;
 	}
 
-	// json& data = jReq["data"];
-
 	jRet["from"] = from;
 	jRet["to"] = to;
 	jRet["action"] = action;
@@ -128,9 +127,11 @@ EINT CRequestHandler::HandleAction(const json& jReq, json& jRet)
 		error = (*funHander)(jReq, jRet);
 	} while(0);
 
+	// 转用脚本处理
 	if (error == ERR_SERVICE_NOT_FOUND || error == ERR_ACTION_NOT_FOUND)
 	{
-		// todo: 调用脚本
+		log_trace("trans to script: %s/%s", to.c_str(), action.c_str());
+		error = script::FindRun(to, action, jReq, jRet);
 	}
 
 	return error;

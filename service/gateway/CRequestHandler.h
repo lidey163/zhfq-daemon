@@ -4,7 +4,7 @@
 #include "fastcgi/fastcgi_server.hpp"
 #include "fastcgi/fastcgi_reply.hpp"
 #include "jsonutil.hpp"
-#include "errorcode.hpp"
+#include "errors/errormsg.hpp"
 
 class CRequestHandler : public t_fastcgi_server::t_handler
 {

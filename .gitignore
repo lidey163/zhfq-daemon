@@ -6,9 +6,11 @@
 *.pb.h
 obj/
 bin/
+
 GPATH
 GRTAGS
 GTAGS
+Session.vim
 
 libs
 primary
