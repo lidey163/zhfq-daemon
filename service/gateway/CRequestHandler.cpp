@@ -1,4 +1,4 @@
-#include "CRequestHandler.h"
+#include "CRequestHandler.hpp"
 #include "App.h"
 #include <errno.h>
 #include "script.hpp"
@@ -60,6 +60,11 @@ EINT CRequestHandler::HandleFastcgi(const t_fastcgi_request_ref &req, const t_fa
 			break;
 		}
 
+		if (!jRequest["data"].is_object())
+		{
+			jRequest["data"] = json::object();
+		}
+
 		std::string clientIp = GetRealClientIp(req);
 		log_trace("clientIp:%s", clientIp.c_str());
 		json& session = jRequest["session"];
@@ -69,20 +74,15 @@ EINT CRequestHandler::HandleFastcgi(const t_fastcgi_request_ref &req, const t_fa
 
     } while (0);
 
-	jReply["error"] = error;
+	if (jReply.find("error") == jReply.end())
+	{
+		jReply["error"] = error;
+	}
 	if (error != OK)
 	{
 		if (jReply.value("errstr", "").empty())
 		{
 			jReply["errstr"] = errors::GetErrorMsg(error);
-		}
-	}
-	else
-	{
-		if (jReply["data"].empty())
-		{
-			jReply["data"] = jReply;
-			jReply["error"] = OK;
 		}
 	}
 
@@ -95,6 +95,9 @@ EINT CRequestHandler::HandleFastcgi(const t_fastcgi_request_ref &req, const t_fa
 
 EINT CRequestHandler::HandleAction(const json& jReq, json& jRet)
 {
+#ifdef QUICK_TEST
+	log_trace("jReq = %s", jReq.dump().c_str());
+#endif
 	std::string from = jReq.value("from", "");
 	std::string to = jReq.value("to", "");
 	std::string action = jReq.value("action", "");
@@ -107,7 +110,7 @@ EINT CRequestHandler::HandleAction(const json& jReq, json& jRet)
 	jRet["from"] = from;
 	jRet["to"] = to;
 	jRet["action"] = action;
-	jRet["session"] = jReq["session"];
+	// jRet["session"] = jReq["session"];
 
 	EINT error = OK;
 	do {
@@ -134,6 +137,9 @@ EINT CRequestHandler::HandleAction(const json& jReq, json& jRet)
 		error = script::FindRun(to, action, jReq, jRet);
 	}
 
+#ifdef QUICK_TEST
+	log_trace("error = %d; jRet = %s", error, jRet.dump().c_str());
+#endif
 	return error;
 }
 

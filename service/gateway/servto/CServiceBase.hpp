@@ -9,7 +9,7 @@
 namespace servto
 {
 
-typedef EINT (*FActionHander)(const json& jReq, json& jRes);
+typedef EINT (*FActionHander)(const json& jReq, json& jRet);
 
 class CServiceBase
 {

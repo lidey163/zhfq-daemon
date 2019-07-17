@@ -6,7 +6,7 @@
 
 namespace errors
 {
-EINT Init();
+EINT Load();
 std::string GetErrorMsg(EINT error);
 } /* errors */ 
 

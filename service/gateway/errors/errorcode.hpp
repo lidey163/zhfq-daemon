@@ -3,12 +3,14 @@
 
 #include "errorutil.hpp"
 
-enum ErrSystemType {
+enum ErrSystemType
+{
 	ERR_SYSTEM_ERROR = -1000, // 系统错误
 	ERR_SYSTEM_BUSY = -1001, // 系统繁忙
 };
 
-enum ErrActionType {
+enum ErrActionType
+{
 	ERR_SERVICE_NOT_FOUND = 1001, // 服务未找到
 	ERR_ACTION_NOT_FOUND = 1002,  // 接口未找到
 	ERR_SCRIPT_NOT_FOUND = 1003,  // 脚本未找到
@@ -25,7 +27,8 @@ enum ErrActionType {
 	ERR_ARGUMENT_INVALID = 1023, // 非法参数值
 };
 
-enum ErrUserType {
+enum ErrUserType
+{
 	ERR_USER_NAME_EXISTS = 20001, // 用户名已存在
 	ERR_USER_MOBILE_EXISTS = 20002, // 用户手机号已存在
 	ERR_USER_EMAIL_EXISTS = 20003, // 用户邮箱已存在
