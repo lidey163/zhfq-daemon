@@ -50,3 +50,83 @@ $ ln -s action_name.py action_name
 
 不过在接口名约定上添加特定后缀的做法，不利于迁移。假如将来想将该接口重写为 C++
 处理函数，则可能要求客户端调用处也改接口名。
+
+## 输出格式
+
+脚本的标准输出的 json 格式，可参考上一节的 C++ 接口处理函数的返回参数，此不重
+复。
+
+完整输出须包含 `data` ，大约如下：
+
+```json
+{"error":0,"data":{"key":"val"}}
+{"error":-1,"data":{}}
+```
+
+精简输出不须包含 `data` ，假设输出的 json 即为内嵌的 `data` ，形如：
+
+```json
+{"key":"val"}
+{"../error":-1}
+```
+
+输出的 json 字符串不一定单行，但一般 json 库序列化的默认行为是单行格式。
+
+一些脚本语言有指定退出码（exit status）的方法，或许可直接用退出码表示要返回的
+错误码，如 `exit 1011;` 。但此方法对另一些脚本语言或许不可靠，故而建议显式向标
+准输出 `error` 或 `../error` 字段表示错误码。如要定制错误消息，同样可输出
+`errstr` 或 `../errstr` 字段。当然没有错误时可省略。
+
+## 示例脚本
+
+假设用 perl 语言写的一个 `debug/hello.pl` 接口。
+
+```perl
+#! /usr/bin/env perl
+print qq({"greet":"Hello Perl","../error":0});
+# print qq({"data":{"greet":"Hello Perl"},"error":0});
+```
+
+当然这只是打印输出固定字符串，无多大意义。要处理输入参数，可使用 JSON 包。
+
+```perl
+#! /usr/bin/env perl
+use JSON;
+my $str_req = shift; # 读取命令行参数
+my $json_req = decode_json($str_req); # 将json串解码为内部数据结构
+my $json_data = $json_req->{data} || {}; # 取 data 对象
+my $name = $json_data->{name} || "World"; # 取 data.name 值
+
+my $json_ret = {greet => "Hello $name!"}; # 组建json对应的内部数据结构
+my $str_ret = encode_json($json_ret); # 序列化json串
+
+print $str_ret, "\n"; # 标准输出
+# exit 0;
+```
+
+参考注释，用其他语言写脚本的基本流程也类似。可先在命令行测试该脚本。
+
+```bash
+$ ./hello.pl '{}'
+# 输出 {"greet":"Hello World!"}
+$ ./hello.pl '{"data":{"name":"Perl"}}'
+# 输出 {"greet":"Hello Perl!"}
+```
+
+然后通过网关服务用 http 请求，参考接口请求规范大约如：
+
+```json
+POST /cgi-bin/zhfq-gateway.cgi
+
+{"from":"app","to":"debug","action":"hello.pl","data":{"name":"Perl"}}
+```
+
+响应大约如：
+
+```json
+{
+  "from":"app","to":"debug","action":"hello.pl",
+  "error":0,
+  "data":{"greet":"Hello Perl!"}
+}
+```

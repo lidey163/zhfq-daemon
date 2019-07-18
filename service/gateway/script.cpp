@@ -1,6 +1,7 @@
 #include "script.hpp"
 
 #include <unistd.h>
+#include <stdlib.h>
 #include <stdio.h>
 
 #include "commonutil/api_logger.h"
@@ -34,29 +35,48 @@ EINT FindRun(const std::string& to, const std::string& action, const json& jReq,
 
 	std::string strReq = jReq.dump();
 	std::string strCmd = strPath + " '" + strReq + "' 2>/dev/null";
-	log_trace("will popen: %s", strCmd.c_str());
-	FILE *pStream = popen(strCmd.c_str(), "r");
-	if (pStream == NULL)
+	log_trace("will call system: %s", strCmd.c_str());
+
+	int fd[2];
+	if(pipe(fd))
 	{
-		log_error("popen cmd failed");
+		log_error("pipe error!\n");
 		return ERR_SCRIPT_EXE_FAILED;
 	}
 
+	EINT error = OK;
 	char buff[S_MAX_OUTPUT_BUFF] = {0};
-	int error = OK;
+	//hide stdout
+	int bak_fd = dup(STDOUT_FILENO);
+	int new_fd = dup2(fd[1], STDOUT_FILENO);
 	do {
-		int iRead = fread(buff, 1, S_MAX_OUTPUT_BUFF-1, pStream);
+		error = system(strCmd.c_str());
+		log_trace("exit status: system[%d], script[%d]", error, WEXITSTATUS(error));
+
+		if (error == -1)
+		{
+			log_error("system failed");
+			error = ERR_SCRIPT_EXE_FAILED;
+			break;
+		}
+		if (error)
+		{
+			error = WEXITSTATUS(error);
+			log_error("script exit with normal error code");
+			break;
+		}
+
+		int iRead = read(fd[0], buff, S_MAX_OUTPUT_BUFF-1);
+		if (iRead >= S_MAX_OUTPUT_BUFF-1)
+		{
+			log_error("script seems too much output");
+		}
 		if (iRead == 0)
 		{
 			log_error("script seems no output");
 			error = ERR_SCRIPT_EXE_FAILED;
 			break;
 		}
-		else if (iRead >= S_MAX_OUTPUT_BUFF-1)
-		{
-			log_error("script seems too much output");
-		}
-		buff[iRead] = '\0';
 
 		try
 		{
@@ -65,21 +85,23 @@ EINT FindRun(const std::string& to, const std::string& action, const json& jReq,
 		}
 		catch (json::parse_error& e)
 		{
-			std::string strMsg = e.what();
-			log_error("json parse exception: %s", strMsg.c_str());
+			log_error("system output: %s", buff);
+			log_error("json parse exception: %s", e.what());
 			error = ERR_RESPONSE_NOJSON;
-			break;
 		}
+
 	} while(0);
 
-	pclose(pStream);
+	//resume stdout
+	dup2(bak_fd, new_fd);
+
 	return error;
 }
 
 
 }
 
-// 私有声明
+// 私有实现
 namespace script
 {
 
@@ -95,4 +117,3 @@ std::string findScript(const std::string& to, const std::string& action)
 }
 
 }
-
