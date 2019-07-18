@@ -30,7 +30,7 @@ EINT CRequestHandler::HandleFastcgi(const t_fastcgi_request_ref &req, const t_fa
 		log_trace("req: %s", reqdata.c_str());
 		if (reqdata.empty())
 		{
-			error = ERR_ARGUMENT_EMPTY;
+			error = ERR_REQUEST_EMPTY;
 			break;
 		}
 
@@ -43,26 +43,8 @@ EINT CRequestHandler::HandleFastcgi(const t_fastcgi_request_ref &req, const t_fa
 		{
 			std::string strMsg = e.what();
 			log_error("json parse exception: %s", strMsg.c_str());
-			error = ERR_DATA_NOT_JSON;
+			error = ERR_REQUEST_NOJSON;
 			break;
-		}
-
-        if (!jRequest.is_object()) {
-            log_error("reqdata is not object data");
-            error = ERR_DATA_NOT_OBJECT;
-            break;
-        }
-
-		if (jRequest.empty())
-		{
-			log_error("requset object is empty");
-			error = ERR_ARGUMENT_EMPTY;
-			break;
-		}
-
-		if (!jRequest["data"].is_object())
-		{
-			jRequest["data"] = json::object();
 		}
 
 		std::string clientIp = GetRealClientIp(req);
@@ -73,18 +55,6 @@ EINT CRequestHandler::HandleFastcgi(const t_fastcgi_request_ref &req, const t_fa
 		error = HandleAction(jRequest, jReply);
 
     } while (0);
-
-	if (jReply.find("error") == jReply.end())
-	{
-		jReply["error"] = error;
-	}
-	if (error != OK)
-	{
-		if (jReply.value("errstr", "").empty())
-		{
-			jReply["errstr"] = errors::GetErrorMsg(error);
-		}
-	}
 
 	std::string replyData = jReply.dump();
 	log_trace("reply: %s", replyData.c_str());
@@ -98,19 +68,39 @@ EINT CRequestHandler::HandleAction(const json& jReq, json& jRet)
 #ifdef QUICK_TEST
 	log_trace("jReq = %s", jReq.dump().c_str());
 #endif
+
+	if (!jReq.is_object()) {
+		log_error("request is not object data");
+		return ERR_REQUEST_NOOBJ;
+	}
+
+	if (jReq.empty())
+	{
+		log_error("requset object is empty");
+		return ERR_REQUEST_EMPTY;
+	}
+
 	std::string from = jReq.value("from", "");
 	std::string to = jReq.value("to", "");
 	std::string action = jReq.value("action", "");
-	if (from.empty() || to.empty() || action.empty())
+
+	if (to.empty())
 	{
-		log_error("from/to/action may not exists or empty");
-		return ERR_ARGUMENT_EMPTY;
+		log_error("to may not exists or empty");
+		return ERR_REQUEST_NOTO;
 	}
 
-	jRet["from"] = from;
-	jRet["to"] = to;
-	jRet["action"] = action;
-	// jRet["session"] = jReq["session"];
+	if (action.empty())
+	{
+		log_error("action may not exists or empty");
+		return ERR_REQUEST_NOACTION;
+	}
+
+	if (jReq.find("data") == jReq.end() || !jReq["data"].is_object())
+	{
+		log_error("req.data not object");
+		return ERR_REQUEST_NODATA;
+	}
 
 	EINT error = OK;
 	do {
@@ -127,6 +117,7 @@ EINT CRequestHandler::HandleAction(const json& jReq, json& jRet)
 			error = ERR_ACTION_NOT_FOUND;
 			break;
 		}
+		log_trace("goto action hander: %s/%s", to.c_str(), action.c_str());
 		error = (*funHander)(jReq, jRet);
 	} while(0);
 
@@ -137,9 +128,93 @@ EINT CRequestHandler::HandleAction(const json& jReq, json& jRet)
 		error = script::FindRun(to, action, jReq, jRet);
 	}
 
+	error = HandleError(error, jRet);
+	jRet["from"] = from;
+	jRet["to"] = to;
+	jRet["action"] = action;
+	// jRet["session"] = jReq["session"];
+
 #ifdef QUICK_TEST
 	log_trace("error = %d; jRet = %s", error, jRet.dump().c_str());
 #endif
+	return error;
+}
+
+// 允许处理返回的 jRet 包含 data 或不包含 data
+// 一般为方便不需包含 data ，处理函数直接写入 jRet["data"] ，而用
+// "../error" 与 "../errstr" 表示 jRet 层的错误字段
+EINT CRequestHandler::HandleError(EINT error, json& jRet)
+{
+	do {
+		if (error != OK)
+		{
+			if (!jRet.empty())
+			{
+				log_debug("when NOT OK ignore jRet: %s", jRet.dump().c_str());
+				jRet.clear();
+			}
+			jRet["error"] = error;
+			break;
+		}
+
+		if (jRet.is_null())
+		{
+			log_debug("jRet still null?");
+			break;
+		}
+
+		if (jRet.find("data") == jRet.end() || !jRet["data"].is_object())
+		{
+			EINT data_error = OK;
+			std::string data_errstr;
+			auto it_error = jRet.find("../error");
+			if (it_error != jRet.end())
+			{
+				data_error = it_error->get<EINT>();
+				jRet.erase("../error");
+			}
+			auto it_errstr = jRet.find("../errstr");
+			if (it_errstr != jRet.end())
+			{
+				data_errstr = it_error->get<std::string>();
+				jRet.erase("../errstr");
+			}
+
+			if (data_error != OK)
+			{
+				jRet.clear();
+				jRet["error"] = data_error;
+				error = data_error;
+			}
+			else
+			{
+				jRet["data"] = jRet;
+			}
+			if (!data_errstr.empty())
+			{
+				jRet["errstr"] = data_errstr;
+			}
+		}
+		else
+		{
+			log_debug("response already has data object");
+			if (jRet.find("error") != jRet.end())
+			{
+				error = jRet["error"];
+			}
+		}
+	} while(0);
+
+	if (jRet.find("error") == jRet.end())
+	{
+		jRet["error"] = error;
+	}
+
+	if (error != OK && jRet.value("errstr", "").empty())
+	{
+		jRet["errstr"] = errors::GetErrorMsg(error);
+	}
+
 	return error;
 }
 

@@ -13,6 +13,7 @@ public:
 
 private:
     EINT HandleFastcgi(const t_fastcgi_request_ref &req, const t_fastcgi_reply_ref &reply);
+	EINT HandleError(EINT error, json& jRet);
     std::string GetRealClientIp(const t_fastcgi_request_ref &req);
 
 public:

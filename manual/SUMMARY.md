@@ -5,7 +5,10 @@
 * [数据库设计](ch1_dbsql/readme.md)
     * [mysql表设计简明规范](ch1_dbsql/table_pattern.md)
     * [mysql数据库管理](ch1_dbsql/online_admin.md)
-* [API接口接口设计](ch2_japi/readme.md)
+* [API接口设计](ch2_japi/readme.md)
     * [接口模式概述](ch2_japi/post_json.md)
     * [用户管理API](ch2_japi/user_api.md)
+* [API接口实现指导](ch3_apimpl/readme.md)
+    * [C++接口实现](ch3_apimpl/api_by_cpp.md)
+    * [任意脚本接口实现](ch3_apimpl/api_by_script.md)
 

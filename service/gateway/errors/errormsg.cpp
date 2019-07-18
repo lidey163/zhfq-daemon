@@ -16,6 +16,7 @@ static CErrorCodeMgr s_errorCodeMgr;
 
 CErrorCodeMgr::CErrorCodeMgr()
 {
+	init();
 }
 
 #define GENERATE_ERROR_MESSAGE 1

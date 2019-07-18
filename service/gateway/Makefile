@@ -1,6 +1,6 @@
 ROOT_DIR	= ../../
 TYPE		= app
-TARGET		= tast_gateway 
+TARGET		= zhfq_gateway 
 INSTALL_DIR	= $(ROOT_DIR)bin/
 SRC_DIR		=  errors servto action
 INC_DIR		=

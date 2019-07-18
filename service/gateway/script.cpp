@@ -67,7 +67,7 @@ EINT FindRun(const std::string& to, const std::string& action, const json& jReq,
 		{
 			std::string strMsg = e.what();
 			log_error("json parse exception: %s", strMsg.c_str());
-			error = ERR_DATA_NOT_JSON;
+			error = ERR_RESPONSE_NOJSON;
 			break;
 		}
 	} while(0);
@@ -86,7 +86,7 @@ namespace script
 std::string findScript(const std::string& to, const std::string& action)
 {
 	std::string strPath = s_script_dir + '/' + to + '/' + action;
-	if (access(strPath.c_str(), R_OK | X_OK))
+	if (access(strPath.c_str(), R_OK | X_OK) == OK)
 	{
 		return strPath;
 	}

@@ -60,11 +60,40 @@ EINT req_echo()
 	return OK;
 }
 
+EINT req_script_hello()
+{
+	json jRet;
+	json jReq = {
+		{"from", "qtest"},
+		{"to", "debug"},
+		{"action", "hello.pl"},
+	};
+
+	jReq["data"]["name"] = "World";
+	g_App.requestHandler.HandleAction(jReq, jRet);
+
+	jRet.clear();
+	jReq["data"]["name"] = "world";
+	g_App.requestHandler.HandleAction(jReq, jRet);
+
+	jRet.clear();
+	jReq["data"]["name"] = "Zhifengque";
+	g_App.requestHandler.HandleAction(jReq, jRet);
+
+	jRet.clear();
+	jReq["action"] = "hello.py";
+	jReq["data"]["name"] = "Zhifengque";
+	g_App.requestHandler.HandleAction(jReq, jRet);
+
+	return OK;
+}
+
 EINT Run()
 {
 	int iFail = 0;
 	iFail += req_hello();
 	iFail += req_echo();
+	iFail += req_script_hello();
 	return OK;
 }
 
