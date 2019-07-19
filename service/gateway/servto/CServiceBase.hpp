@@ -3,13 +3,13 @@
 
 #include <string>
 #include <map>
-#include "errorcode.hpp"
+#include "errorutil.hpp"
 #include "jsonutil.hpp"
 
 namespace servto
 {
 
-typedef EINT (*FActionHander)(const json& jReq, json& jRes);
+typedef EINT (*FActionHander)(const json& jReq, json& jRet);
 
 class CServiceBase
 {

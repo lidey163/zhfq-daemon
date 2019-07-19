@@ -2,6 +2,7 @@
 #define CDEBUGSERVICE_HPP__
 
 #include "CServiceBase.hpp"
+#include "action/debug.hpp"
 
 namespace servto
 {
@@ -14,6 +15,8 @@ public:
 
 	virtual void RegisterAction()
 	{
+		m_mapActionHander["hello"] = &action::on_hello;
+		m_mapActionHander["echo"] = &action::on_echo;
 	}
 private:
 	/* data */

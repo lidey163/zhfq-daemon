@@ -4,7 +4,7 @@
 #include "fastcgi/fastcgi_server.hpp"
 #include "fastcgi/fastcgi_reply.hpp"
 #include "jsonutil.hpp"
-#include "errorcode.hpp"
+#include "errors/errormsg.hpp"
 
 class CRequestHandler : public t_fastcgi_server::t_handler
 {
@@ -13,9 +13,11 @@ public:
 
 private:
     EINT HandleFastcgi(const t_fastcgi_request_ref &req, const t_fastcgi_reply_ref &reply);
-	EINT HandleAction(const json& jReq, json& jRet);
-
+	EINT HandleError(EINT error, json& jRet);
     std::string GetRealClientIp(const t_fastcgi_request_ref &req);
+
+public:
+	EINT HandleAction(const json& jReq, json& jRet);
 };
 
 #endif
