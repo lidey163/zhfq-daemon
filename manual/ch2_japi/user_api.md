@@ -4,7 +4,7 @@
 
 在第一节的基础上细化参数如下。
 
-* url 地址： http://47.110.237.215/cgi-bin/zfq_gateway.cgi
+* url 地址： http://47.110.237.215/zhfq/cgi-bin/gateway.cgi
 * to 参数： `user`
 
 ## 具体接口参数

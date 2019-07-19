@@ -10,7 +10,7 @@ void CRequestHandler::HandleRequest(const commonnet::TransceiverPtr& ptrTranscei
 	int status = HandleFastcgi(req, reply);
 	if (status != 0)
 	{
-		log_debug("HandleFastcgi finished on status: %s", status);
+		log_debug("HandleFastcgi finished on status: %d", status);
 	}
 	std::string reply_data = reply->serialize();
 	ptrTransceiver->write(reply_data.c_str(), reply_data.size());
@@ -23,6 +23,7 @@ EINT CRequestHandler::HandleFastcgi(const t_fastcgi_request_ref &req, const t_fa
 	reply->set_charset("UTF-8");
 
     EINT error = OK;
+	bool bAction = false;
 	json jReply;
 
     do {
@@ -53,9 +54,14 @@ EINT CRequestHandler::HandleFastcgi(const t_fastcgi_request_ref &req, const t_fa
 		session["client_ip"] = clientIp;
 
 		error = HandleAction(jRequest, jReply);
+		bAction = true;
 
     } while (0);
 
+	if (!bAction)
+	{
+		jReply["error"] = error;
+	}
 	std::string replyData = jReply.dump();
 	log_trace("reply: %s", replyData.c_str());
 	reply->set_data(replyData);

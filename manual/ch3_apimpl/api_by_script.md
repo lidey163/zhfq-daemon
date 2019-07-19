@@ -60,6 +60,7 @@ $ ln -s action_name.py action_name
 
 ```json
 {"error":0,"data":{"key":"val"}}
+// 或出错时
 {"error":-1,"data":{}}
 ```
 
@@ -67,6 +68,7 @@ $ ln -s action_name.py action_name
 
 ```json
 {"key":"val"}
+// 或出错时
 {"../error":-1}
 ```
 
@@ -87,7 +89,7 @@ print qq({"greet":"Hello Perl","../error":0});
 # print qq({"data":{"greet":"Hello Perl"},"error":0});
 ```
 
-当然这只是打印输出固定字符串，无多大意义。要处理输入参数，可使用 JSON 包。
+当然这只是打印输出固定字符串，无多大意义。要处理输入参数，可使用 JSON 模块。
 
 ```perl
 #! /usr/bin/env perl
@@ -116,7 +118,7 @@ $ ./hello.pl '{"data":{"name":"Perl"}}'
 然后通过网关服务用 http 请求，参考接口请求规范大约如：
 
 ```json
-POST /cgi-bin/zhfq-gateway.cgi
+POST /zhfq/cgi-bin/gateway.cgi
 
 {"from":"app","to":"debug","action":"hello.pl","data":{"name":"Perl"}}
 ```
@@ -130,3 +132,13 @@ POST /cgi-bin/zhfq-gateway.cgi
   "data":{"greet":"Hello Perl!"}
 }
 ```
+
+### 使用脚本的限制
+
+* 目前输出的回应 json 字符串限在 1K 内。
+* 请求数据的 json 字符串可能受系统命令行参数长度限制，也不宜过大。
+* 不能在脚本中向标准输出打印其他无关内容，如果要调试输出可打印至标准错误。
+
+用任意脚本写业务接口，是一项探求功能，不能期待效率与并发，只能先追求业务逻辑正
+确。以后有需要可将已实现的脚本接口改成 C++ 编译函数接口。或选用一种脚本语言的
+解释器内嵌于服务，后话暂不论。
