@@ -5,7 +5,7 @@
 #include "App.h"
 #include "CRequestHandler.hpp"
 #include "errorutil.hpp"
-#include "script.hpp"
+#include "script/script.hpp"
 
 #ifdef QUICK_TEST
 #include "qtest/qtest.hpp"

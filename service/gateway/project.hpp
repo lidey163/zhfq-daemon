@@ -3,6 +3,7 @@
 
 // 常用头文件，尤其子目录
 #include <map>
+#include <vector>
 #include <string>
 #include "errorutil.hpp"
 #include "jsonutil.hpp"

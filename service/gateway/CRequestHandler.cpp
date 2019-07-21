@@ -1,7 +1,7 @@
 #include "CRequestHandler.hpp"
 #include "App.h"
 #include <errno.h>
-#include "script.hpp"
+#include "script/script.hpp"
 #include "commonutil/GlobalUtil.h"
 
 void CRequestHandler::HandleRequest(const commonnet::TransceiverPtr& ptrTransceiver, const t_fastcgi_request_ref &req)

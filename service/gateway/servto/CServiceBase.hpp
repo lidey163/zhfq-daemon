@@ -17,25 +17,14 @@ public:
 	CServiceBase (const std::string& sName) : m_sName(sName) {}
 	CServiceBase (const std::string& sName, int iPort) : m_sName(sName), m_iPort(iPort) {}
 	CServiceBase (const std::string& sName, const std::string& sIP, int iPort) : m_sName(sName), m_sIP(sIP), m_iPort(iPort) {}
-	virtual ~CServiceBase () {}
+	~CServiceBase () {}
 
-	virtual void RegisterAction() = 0;
+	const std::string& Name() { return m_sName; }
 
-	virtual EINT Init()
-	{
-		RegisterAction();
-		return OK;
-	}
-
-	FActionHander GetActionHander(const std::string& sAction)
-	{
-		auto it = m_mapActionHander.find(sAction);
-		if (it != m_mapActionHander.end())
-		{
-			return it->second;
-		}
-		return nullptr;
-	}
+	FActionHander GetActionHander(const std::string& sAction);
+	void AddAction(const std::string& sAction, FActionHander funHander);
+	bool HasAction();
+	bool HasAction(const std::string& sAction);
 
 protected:
 	std::string m_sName;

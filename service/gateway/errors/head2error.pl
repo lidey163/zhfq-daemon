@@ -51,15 +51,25 @@ sub on_group
 	if ($format eq 'cpp') {
 		print "// $group\n";
 	}
+	elsif ($format eq 'md') {
+		print "\n";
+		print "## $group\n";
+		print "\n";
+		print "| 错误码 | 宏定义 | 错误消息 |\n";
+		print "| ------ | ------ | -------- |\n";
+	}
 }
 
 sub on_erorr
 {
-	my ($mocro, $code, $msg) = @_;
+	my ($macro, $code, $msg) = @_;
 	if ($format eq 'cpp') {
 		print qq{m_mapErrorCode[$code] = "$msg";\n};
 	}
 	elsif ($format eq 'sql') {
-		print qq{REPLACE INTO $TABLE($FIELD) VALUES($code, '$mocro', '$msg', '$cur_group');\n};
+		print qq{REPLACE INTO $TABLE($FIELD) VALUES($code, '$macro', '$msg', '$cur_group');\n};
+	}
+	elsif ($format eq 'md') {
+		print "| $code | `$macro` | $msg |\n";
 	}
 }
