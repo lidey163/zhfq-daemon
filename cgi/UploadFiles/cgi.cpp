@@ -1,11 +1,11 @@
 #include "stdcgi/CGI.h"
-#include "upload_files.h"
+#include "upload_files.hpp"
 
-commoncgi::Transaction* commoncgi::CGI::MakeTransObj()
+stdcgi::Transaction* stdcgi::CGI::MakeTransObj()
 {
-    commoncgi::Transaction* pTransaction = new UploadFilesCGI();
+    stdcgi::Transaction* pTransaction = new UploadFilesCGI();
 
-    m_resData.SetOutPutType(commoncgi::OUTPUT_TYPE_XML);
+    m_resData.SetOutPutType(stdcgi::OUTPUT_TYPE_XML);
 
     return pTransaction;
 }

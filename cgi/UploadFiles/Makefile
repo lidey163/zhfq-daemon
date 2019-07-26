@@ -9,8 +9,9 @@ SYS_LIB		=
 LIB_DEPENDS	= -lcgicc 
 OBJ_DEPENDS	= ../../libs/libStdCGI.a \
               ../../libs/libCommonNet.a \
-              ../../libs/libCommonUtil.a \
-              ../../libs/libHttpUtil.a 
+			  ../../libs/libjsoncpp.a \
+              ../../libs/libCommonUtil.a
+              #../../libs/libHttpUtil.a 
 EXTRA_CFLAGS	= 
 EXTRA_CXXFLAGS	= 
 
