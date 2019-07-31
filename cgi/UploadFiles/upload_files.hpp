@@ -1,5 +1,5 @@
-#ifndef UPLOAD_FILE_CGI_H
-#define UPLOAD_FILE_CGI_H
+#ifndef ZHFQ_UPLOAD_FILE_CGI_H
+#define ZHFQ_UPLOAD_FILE_CGI_H
 
 #include "stdcgi/Transaction.h"
 #include "commonnet/BasicStreamF.h"
@@ -17,6 +17,8 @@ public:
 private:
     virtual int Run();
     std::string createFileID();
+
+	bool m_bUpload; // 上传或下载查看
 };
 
 

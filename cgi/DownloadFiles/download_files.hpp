@@ -1,5 +1,5 @@
-#ifndef MPOS_DOWNLOAD_FILE_CGI_H
-#define MPOS_DOWNLOAD_FILE_CGI_H
+#ifndef ZHFQ_DOWNLOAD_FILE_CGI_H
+#define ZHFQ_DOWNLOAD_FILE_CGI_H
 
 
 #include "stdcgi/Transaction.h"
@@ -19,4 +19,4 @@ private:
 
 
 
-#endif //MPOS_DOWNLOAD_FILE_CGI_H
+#endif //ZHFQ_DOWNLOAD_FILE_CGI_H

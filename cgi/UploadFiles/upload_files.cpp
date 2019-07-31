@@ -51,6 +51,7 @@ struct UploadFile
 	}
 };
 
+// 上传文件输出
 static
 void cgi_output(json& jOut)
 {
@@ -68,6 +69,20 @@ void cgi_output(json& jOut)
 	std::string strJson = jOut.dump();
 	log_debug("json = %s", strJson.c_str());
 	std::cout << strJson;
+}
+
+// 下载查看文件重定向
+static
+void cgi_redirect(const std::string& strPath, const std::string& strType)
+{
+	if (!strType.empty())
+	{
+		std::cout << "Content-Type: image/png\n" ;
+	}
+
+	std::cout << "Content-Disposition: inline; filename=" << file_name <<"\n";
+	std::cout << "X-Accel-Redirect: /" << strPath <<"\n";
+	std::cout << "\n";
 }
 
 static
@@ -179,6 +194,10 @@ int UploadFilesCGI::Run()
         }
 #endif
 
+		// 由参数 view 决定上传或下载行为
+		std::string viewID = m_pReqData->GetPara("view");
+		m_bUpload = viewID.empty();
+
         std::string strFrom = m_pReqData->GetPara("from");
         std::string strUser = m_pReqData->GetPara("user");
         std::string clientIp = m_pReqData->GetEnv("RealClientIp");
@@ -213,13 +232,13 @@ int UploadFilesCGI::Run()
             log_trace("name:%s, type:%s, name:%s, ext:%s", fileName.c_str(), files[i].getDataType().c_str(), files[i].getName().c_str(), fileExtName.c_str());
 
 			std::string fileID = createFileID();
-			std::string filePath = g_App.uploadPath + fileName;
+			std::string filePath = g_App.uploadPath + fileID + "." + fileExtName;
 			std::string filePtr = files[i].getData();
 			int fileLength = files[i].getDataLength();
 
 			//打开fd
 			std::fstream fd;
-			log_trace("%s", filePath.c_str());
+			log_trace("save file to: %s", filePath.c_str());
 			fd.open(filePath.c_str(), std::fstream::out | std::fstream::trunc);  //创建文件
 			if(!fd)
 			{
